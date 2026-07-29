@@ -36,9 +36,24 @@ ffmpeg; nothing is uploaded.
 7. Click **+** below the left list and choose the same folder.
 8. Click **+** below the right list and choose `Compress CleanShot Videos.scpt`.
 
-If macOS blocks the installer, Control-click `install.command`, choose **Open**,
-and confirm **Open**. This is expected for a small, unsigned shell-script
-installer downloaded outside the App Store.
+### If macOS Blocks the Installer
+
+First, Control-click `install.command`, choose **Open**, and confirm **Open**.
+
+If macOS still reports that `install.command` was blocked:
+
+1. Open **System Settings**.
+2. Go to **Privacy & Security**.
+3. Scroll down to the **Security** section.
+4. Find the message that `install.command` was blocked and click **Open Anyway**.
+5. Authenticate if macOS asks, then confirm **Open** in the final dialog.
+
+![macOS Privacy & Security showing Open Anyway](docs/macos-security-open-anyway.png)
+
+Only use **Open Anyway** when the installer came from this repository's
+[official releases](https://github.com/khevamann/cleanshot-compressor/releases).
+The warning appears because this small shell-script installer is not signed or
+notarized as a macOS application.
 
 New matching CleanShot recordings added to the selected folder will now produce
 a compressed copy. Existing recordings are not processed automatically. Rerun

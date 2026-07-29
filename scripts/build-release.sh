@@ -19,6 +19,7 @@ esac
 rm -rf "$STAGE_DIR"
 rm -f "$ARCHIVE_PATH"
 mkdir -p "$STAGE_DIR"
+mkdir -p "$STAGE_DIR/docs"
 
 for file in \
     "Compress CleanShot Videos.applescript" \
@@ -29,6 +30,8 @@ for file in \
     uninstall.command; do
     cp "$ROOT_DIR/$file" "$STAGE_DIR/$file"
 done
+
+cp "$ROOT_DIR/docs/macos-security-open-anyway.png" "$STAGE_DIR/docs/"
 
 chmod 755 \
     "$STAGE_DIR/compress-new-videos.sh" \
