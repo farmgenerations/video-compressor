@@ -81,6 +81,10 @@ notify_complete() {
         "$output_name" >/dev/null 2>&1 || true
 }
 
+is_open_for_writing() {
+    /usr/sbin/lsof -F a "$1" 2>/dev/null | grep -Eq '^a(w|u)$'
+}
+
 wait_until_stable() {
     local source_file="$1"
     local previous_size="-1"
@@ -98,7 +102,7 @@ wait_until_stable() {
 
         if [[ "$current_size" == "$previous_size" ]] \
             && (( age_seconds >= STABLE_SECONDS )) \
-            && ! /usr/sbin/lsof "$source_file" >/dev/null 2>&1; then
+            && ! is_open_for_writing "$source_file"; then
             stable_checks=$(( stable_checks + 1 ))
         else
             stable_checks=0
@@ -214,12 +218,36 @@ process_single_file() {
 
 acquire_lock() {
     local attempt
+    local lock_age
+    local lock_modified_at
+    local owner_pid
 
     for (( attempt = 0; attempt < 9000; attempt++ )); do
         if mkdir "$LOCK_DIR" 2>/dev/null; then
-            trap 'rmdir "$LOCK_DIR" 2>/dev/null || true' EXIT
+            printf '%s\n' "$$" > "$LOCK_DIR/pid"
+            trap 'rm -f "$LOCK_DIR/pid"; rmdir "$LOCK_DIR" 2>/dev/null || true' EXIT
             return 0
         fi
+
+        if [[ -f "$LOCK_DIR/pid" ]]; then
+            owner_pid="$(cat "$LOCK_DIR/pid" 2>/dev/null || true)"
+            if [[ "$owner_pid" =~ ^[0-9]+$ ]] && kill -0 "$owner_pid" 2>/dev/null; then
+                sleep 4
+                continue
+            fi
+
+            rm -f "$LOCK_DIR/pid"
+            rmdir "$LOCK_DIR" 2>/dev/null || true
+            continue
+        fi
+
+        lock_modified_at="$(stat -f '%m' "$LOCK_DIR" 2>/dev/null || echo 0)"
+        lock_age=$(( $(date +%s) - lock_modified_at ))
+        if (( lock_age >= 30 )); then
+            rmdir "$LOCK_DIR" 2>/dev/null || true
+            continue
+        fi
+
         sleep 4
     done
 

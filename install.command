@@ -91,6 +91,10 @@ if [[ ! -f "$APP_DIR/config.sh" ]]; then
     cp "$SCRIPT_DIR/config.example" "$APP_DIR/config.sh"
 fi
 
+if [[ "$TARGET_HOME" == "$HOME" ]]; then
+    /usr/bin/defaults write com.apple.FolderActionsDispatcher folderActionsEnabled -bool true
+fi
+
 printf '\nInstalled CleanShot Compressor.\n\n'
 printf 'Watch folder: %s\n' "$SELECTED_WATCH_FOLDER"
 if [[ -n "$SELECTED_FILE_PREFIX" ]]; then
@@ -99,7 +103,7 @@ else
     printf 'Filename prefix: any CleanShot filename\n\n'
 fi
 printf 'Finish setup in Folder Actions Setup:\n'
-printf '  1. Turn on Enable Folder Actions.\n'
+printf '  1. Confirm Enable Folder Actions is on.\n'
 printf '  2. Click + under the left list and choose:\n'
 printf '     %s\n' "$SELECTED_WATCH_FOLDER"
 printf '  3. Click + under the right list and choose Compress CleanShot Videos.scpt.\n\n'

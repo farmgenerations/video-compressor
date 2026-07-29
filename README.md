@@ -32,7 +32,7 @@ ffmpeg; nothing is uploaded.
 3. Double-click `install.command`.
 4. Choose the folder to watch when prompted.
 5. Enter a filename prefix, or leave it blank to accept any CleanShot filename.
-6. In Folder Actions Setup, turn on **Enable Folder Actions**.
+6. In Folder Actions Setup, confirm **Enable Folder Actions** is on.
 7. Click **+** below the left list and choose the same folder.
 8. Click **+** below the right list and choose `Compress CleanShot Videos.scpt`.
 
@@ -157,6 +157,14 @@ git push origin v1.0.1
 
 The release workflow validates the project, builds the installer ZIP, creates a
 GitHub release, attaches the ZIP, and generates release notes automatically.
+
+## Troubleshooting
+
+- Confirm **Enable Folder Actions** is on in Folder Actions Setup.
+- Confirm the chosen folder has `Compress CleanShot Videos.scpt` attached and enabled.
+- Remember that `FILE_PREFIX` is case-sensitive when it is not blank.
+- Check `~/Library/Logs/CleanShot Compressor.log` for encoding errors.
+- Rerun `install.command` to restore scripts and update the watched folder or prefix.
 
 ## Uninstall
 
