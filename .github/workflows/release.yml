@@ -1,0 +1,36 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate shell scripts
+        run: bash -n compress-new-videos.sh install.command uninstall.command scripts/build-release.sh
+
+      - name: Compile Folder Action
+        run: osacompile -o /tmp/Compress-CleanShot-Videos.scpt "Compress CleanShot Videos.applescript"
+
+      - name: Build release archive
+        run: ./scripts/build-release.sh "$GITHUB_REF_NAME"
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            "dist/CleanShot-Compressor-$GITHUB_REF_NAME.zip" \
+            --verify-tag \
+            --generate-notes \
+            --title "CleanShot Compressor $GITHUB_REF_NAME"

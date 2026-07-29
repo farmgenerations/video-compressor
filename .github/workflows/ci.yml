@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: macos-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate shell scripts
+        run: bash -n compress-new-videos.sh install.command uninstall.command scripts/build-release.sh
+
+      - name: Compile Folder Action
+        run: osacompile -o /tmp/Compress-CleanShot-Videos.scpt "Compress CleanShot Videos.applescript"
+
+      - name: Build installer archive
+        run: ./scripts/build-release.sh ci
+
+      - name: Upload installer archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: CleanShot-Compressor-ci
+          path: dist/CleanShot-Compressor-ci.zip
+          if-no-files-found: error
