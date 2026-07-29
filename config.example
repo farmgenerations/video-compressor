@@ -1,0 +1,18 @@
+# Copy this file to:
+# ~/Library/Application Support/CleanShot Compressor/config.sh
+
+# Higher CRF means smaller files and lower quality. Typical range: 23-30.
+VIDEO_CRF=27
+
+# slow makes smaller files; medium is faster.
+VIDEO_PRESET=slow
+
+# Output is capped at this height and frame rate.
+MAX_HEIGHT=720
+MAX_FPS=30
+
+# CleanShot may record multiple audio tracks. They are mixed to mono.
+AUDIO_BITRATE=64k
+
+# Set to 0 to disable completion notifications.
+NOTIFICATIONS=1
