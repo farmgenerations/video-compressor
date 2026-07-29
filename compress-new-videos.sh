@@ -5,6 +5,9 @@ set -u
 APP_DIR="${APP_DIR:-$HOME/Library/Application Support/CleanShot Compressor}"
 LOG_FILE="${LOG_FILE:-$HOME/Library/Logs/CleanShot Compressor.log}"
 CONFIG_FILE="${CONFIG_FILE:-$APP_DIR/config.sh}"
+SETTINGS_FILE="${SETTINGS_FILE:-$APP_DIR/settings.sh}"
+WATCH_FOLDER="${WATCH_FOLDER:-}"
+FILE_PREFIX="${FILE_PREFIX:-}"
 STABLE_SECONDS="${STABLE_SECONDS:-12}"
 NOTIFICATIONS="${NOTIFICATIONS:-1}"
 VIDEO_CRF="${VIDEO_CRF:-27}"
@@ -12,11 +15,18 @@ VIDEO_PRESET="${VIDEO_PRESET:-slow}"
 MAX_HEIGHT="${MAX_HEIGHT:-720}"
 MAX_FPS="${MAX_FPS:-30}"
 AUDIO_BITRATE="${AUDIO_BITRATE:-64k}"
+OUTPUT_SUFFIX="${OUTPUT_SUFFIX:- compressed}"
+OUTPUT_DIRECTORY="${OUTPUT_DIRECTORY:-}"
 LOCK_DIR="$APP_DIR/encode.lock"
 
 if [[ -f "$CONFIG_FILE" ]]; then
     # shellcheck source=/dev/null
     source "$CONFIG_FILE"
+fi
+
+if [[ -f "$SETTINGS_FILE" ]]; then
+    # shellcheck source=/dev/null
+    source "$SETTINGS_FILE"
 fi
 
 mkdir -p "$APP_DIR" "$(dirname "$LOG_FILE")"
@@ -104,14 +114,22 @@ wait_until_stable() {
 
 compress_video() {
     local source_file="$1"
-    local output_file="${source_file%.*} compressed.mp4"
-    local temporary_file="${source_file%.*}.compressing.$$.mp4"
+    local source_stem
+    local output_directory
+    local output_file
+    local temporary_file
     local audio_count
     local video_filter="fps=${MAX_FPS},scale=-2:'min(${MAX_HEIGHT}\\,ih)':flags=lanczos"
     local mix_inputs=""
     local mix_filter
     local audio_index
     local -a command
+
+    source_stem="$(basename "${source_file%.*}")"
+    output_directory="${OUTPUT_DIRECTORY:-$(dirname "$source_file")}"
+    mkdir -p "$output_directory"
+    output_file="$output_directory/${source_stem}${OUTPUT_SUFFIX}.mp4"
+    temporary_file="$output_directory/${source_stem}.compressing.$$.mp4"
 
     if [[ -e "$output_file" ]]; then
         log "Skipped because output already exists: $output_file"
@@ -165,12 +183,26 @@ compress_video() {
 process_single_file() {
     local source_file="$1"
     local base_name
+    local source_directory
+    local normalized_watch_folder
 
     [[ -f "$source_file" ]] || return 0
     base_name="$(basename "$source_file")"
 
+    if [[ -n "$WATCH_FOLDER" ]]; then
+        source_directory="$(cd "$(dirname "$source_file")" 2>/dev/null && pwd -P)" || return 0
+        normalized_watch_folder="$(cd "$WATCH_FOLDER" 2>/dev/null && pwd -P)" || return 0
+        [[ "$source_directory" == "$normalized_watch_folder" ]] || return 0
+    fi
+
+    [[ -z "$FILE_PREFIX" || "$base_name" == "$FILE_PREFIX"* ]] || return 0
+
+    if [[ -n "$OUTPUT_SUFFIX" && "$base_name" == *"${OUTPUT_SUFFIX}.mp4" ]]; then
+        return 0
+    fi
+
     case "$base_name" in
-        *\ compressed.mp4|*.compressing.*.mp4) return 0 ;;
+        *.compressing.*.mp4) return 0 ;;
         *.mp4|*.MP4|*.mov|*.MOV) ;;
         *) return 0 ;;
     esac

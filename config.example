@@ -14,5 +14,14 @@ MAX_FPS=30
 # CleanShot may record multiple audio tracks. They are mixed to mono.
 AUDIO_BITRATE=64k
 
+# Text added before the output file extension.
+OUTPUT_SUFFIX=" compressed"
+
+# Leave blank to save beside the original, or enter an absolute folder path.
+OUTPUT_DIRECTORY=""
+
+# Seconds a file must remain unchanged before compression starts.
+STABLE_SECONDS=12
+
 # Set to 0 to disable completion notifications.
 NOTIFICATIONS=1

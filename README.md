@@ -3,12 +3,14 @@
 [![CI](https://github.com/khevamann/cleanshot-compressor/actions/workflows/ci.yml/badge.svg)](https://github.com/khevamann/cleanshot-compressor/actions/workflows/ci.yml)
 
 Automatically create small, shareable MP4 copies when CleanShot X adds new
-recordings to your Downloads folder. Compression runs entirely on your Mac with
+recordings to a folder you choose. Compression runs entirely on your Mac with
 ffmpeg; nothing is uploaded.
 
 ## Features
 
 - Detects CleanShot recordings from their embedded application metadata.
+- Watches any folder selected during installation.
+- Optionally requires a filename prefix that you choose.
 - Ignores videos created by Loom and other applications.
 - Keeps the original recording unchanged.
 - Creates `<original name> compressed.mp4` beside the original.
@@ -28,16 +30,33 @@ ffmpeg; nothing is uploaded.
 1. Download the ZIP from the [latest release](https://github.com/khevamann/cleanshot-compressor/releases/latest).
 2. Unzip it.
 3. Double-click `install.command`.
-4. In Folder Actions Setup, turn on **Enable Folder Actions**.
-5. Click **+** below the left list and choose **Downloads**.
-6. Click **+** below the right list and choose `Compress CleanShot Videos.scpt`.
+4. Choose the folder to watch when prompted.
+5. Enter a filename prefix, or leave it blank to accept any CleanShot filename.
+6. In Folder Actions Setup, turn on **Enable Folder Actions**.
+7. Click **+** below the left list and choose the same folder.
+8. Click **+** below the right list and choose `Compress CleanShot Videos.scpt`.
 
 If macOS blocks the installer, Control-click `install.command`, choose **Open**,
 and confirm **Open**. This is expected for a small, unsigned shell-script
 installer downloaded outside the App Store.
 
-New CleanShot recordings added to Downloads will now produce a compressed copy.
-Existing recordings are not processed automatically.
+New matching CleanShot recordings added to the selected folder will now produce
+a compressed copy. Existing recordings are not processed automatically. Rerun
+`install.command` to change the watched folder or filename prefix.
+
+## Watch Settings
+
+The installer writes these values to
+`~/Library/Application Support/CleanShot Compressor/settings.sh`:
+
+| Setting | Purpose |
+| --- | --- |
+| `WATCH_FOLDER` | Exact folder whose new files may be processed. |
+| `FILE_PREFIX` | Optional case-sensitive filename prefix; blank accepts every CleanShot filename. |
+
+Rerun `install.command` to update them and then attach the Folder Action to the
+new folder. Remove the Folder Action from the old folder when it is no longer
+needed.
 
 ## Customize Compression
 
@@ -56,14 +75,19 @@ Edit that file to change the defaults:
 | `MAX_HEIGHT` | `720` | Maximum output height in pixels. |
 | `MAX_FPS` | `30` | Maximum output frame rate. |
 | `AUDIO_BITRATE` | `64k` | AAC audio bitrate. |
+| `OUTPUT_SUFFIX` | ` compressed` | Text added before the output file extension. |
+| `OUTPUT_DIRECTORY` | blank | Absolute output folder; blank saves beside the original. |
+| `STABLE_SECONDS` | `12` | Time a recording must remain unchanged before encoding. |
 | `NOTIFICATIONS` | `1` | Set to `0` to disable completion notifications. |
 
-Changes apply to the next recording; reinstalling is unnecessary.
+Changes apply to the next recording; reinstalling is unnecessary. The watched
+folder and filename prefix are stored separately in `settings.sh` and are best
+changed by rerunning `install.command`.
 
 ## How It Works
 
 macOS Folder Actions calls `Compress CleanShot Videos.scpt` when a new item
-appears in Downloads. The AppleScript passes the item to
+appears in the selected folder. The AppleScript passes the item to
 `compress-new-videos.sh`. The shell script waits for CleanShot to finish writing
 the file, verifies the CleanShot metadata, and then runs ffmpeg.
 
@@ -72,6 +96,7 @@ The relevant source files are:
 - `compress-new-videos.sh`: detection, stability checks, and ffmpeg settings
 - `Compress CleanShot Videos.applescript`: Folder Action entry point
 - `config.example`: user-adjustable defaults
+- `settings.sh`: installer-managed watch folder and filename prefix
 - `install.command`: installation and Folder Actions setup
 - `uninstall.command`: removal without deleting recordings
 - `scripts/build-release.sh`: reproducible release ZIP creation
@@ -111,7 +136,7 @@ The archive will be written to `dist/CleanShot-Compressor-dev.zip`.
 To test one file without attaching the Folder Action:
 
 ```bash
-STABLE_SECONDS=0 NOTIFICATIONS=0 \
+SETTINGS_FILE=/dev/null CONFIG_FILE=/dev/null STABLE_SECONDS=0 NOTIFICATIONS=0 \
   ./compress-new-videos.sh --file "$HOME/Downloads/example.mp4"
 ```
 
