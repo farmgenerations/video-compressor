@@ -10,7 +10,6 @@ ffmpeg; nothing is uploaded.
 
 - Detects CleanShot recordings from their embedded application metadata.
 - Watches any folder selected during installation.
-- Optionally requires a filename prefix that you choose.
 - Ignores videos created by Loom and other applications.
 - Keeps the original recording unchanged.
 - Creates `<original name> compressed.mp4` beside the original.
@@ -31,10 +30,9 @@ ffmpeg; nothing is uploaded.
 2. Unzip it.
 3. Double-click `install.command`.
 4. Choose the folder to watch when prompted.
-5. Enter a filename prefix, or leave it blank to accept any CleanShot filename.
-6. In Folder Actions Setup, confirm **Enable Folder Actions** is on.
-7. Click **+** below the left list and choose the same folder.
-8. Click **+** below the right list and choose `Compress CleanShot Videos.scpt`.
+5. In Folder Actions Setup, confirm **Enable Folder Actions** is on.
+6. Click **+** below the left list and choose the same folder.
+7. Click **+** below the right list and choose `Compress CleanShot Videos.scpt`.
 
 ### If macOS Blocks the Installer
 
@@ -57,17 +55,16 @@ notarized as a macOS application.
 
 New matching CleanShot recordings added to the selected folder will now produce
 a compressed copy. Existing recordings are not processed automatically. Rerun
-`install.command` to change the watched folder or filename prefix.
+`install.command` to change the watched folder.
 
 ## Watch Settings
 
-The installer writes these values to
+The installer writes this value to
 `~/Library/Application Support/CleanShot Compressor/settings.sh`:
 
 | Setting | Purpose |
 | --- | --- |
 | `WATCH_FOLDER` | Exact folder whose new files may be processed. |
-| `FILE_PREFIX` | Optional case-sensitive filename prefix; blank accepts every CleanShot filename. |
 
 Rerun `install.command` to update them and then attach the Folder Action to the
 new folder. Remove the Folder Action from the old folder when it is no longer
@@ -96,8 +93,8 @@ Edit that file to change the defaults:
 | `NOTIFICATIONS` | `1` | Set to `0` to disable completion notifications. |
 
 Changes apply to the next recording; reinstalling is unnecessary. The watched
-folder and filename prefix are stored separately in `settings.sh` and are best
-changed by rerunning `install.command`.
+folder is stored separately in `settings.sh` and is best changed by rerunning
+`install.command`.
 
 ## How It Works
 
@@ -111,7 +108,7 @@ The relevant source files are:
 - `compress-new-videos.sh`: detection, stability checks, and ffmpeg settings
 - `Compress CleanShot Videos.applescript`: Folder Action entry point
 - `config.example`: user-adjustable defaults
-- `settings.sh`: installer-managed watch folder and filename prefix
+- `settings.sh`: installer-managed watch folder
 - `install.command`: installation and Folder Actions setup
 - `uninstall.command`: removal without deleting recordings
 - `scripts/build-release.sh`: reproducible release ZIP creation
@@ -177,9 +174,8 @@ GitHub release, attaches the ZIP, and generates release notes automatically.
 
 - Confirm **Enable Folder Actions** is on in Folder Actions Setup.
 - Confirm the chosen folder has `Compress CleanShot Videos.scpt` attached and enabled.
-- Remember that `FILE_PREFIX` is case-sensitive when it is not blank.
 - Check `~/Library/Logs/CleanShot Compressor.log` for encoding errors.
-- Rerun `install.command` to restore scripts and update the watched folder or prefix.
+- Rerun `install.command` to restore scripts or update the watched folder.
 
 ## Uninstall
 

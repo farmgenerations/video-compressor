@@ -7,7 +7,6 @@ LOG_FILE="${LOG_FILE:-$HOME/Library/Logs/CleanShot Compressor.log}"
 CONFIG_FILE="${CONFIG_FILE:-$APP_DIR/config.sh}"
 SETTINGS_FILE="${SETTINGS_FILE:-$APP_DIR/settings.sh}"
 WATCH_FOLDER="${WATCH_FOLDER:-}"
-FILE_PREFIX="${FILE_PREFIX:-}"
 STABLE_SECONDS="${STABLE_SECONDS:-12}"
 NOTIFICATIONS="${NOTIFICATIONS:-1}"
 VIDEO_CRF="${VIDEO_CRF:-27}"
@@ -198,8 +197,6 @@ process_single_file() {
         normalized_watch_folder="$(cd "$WATCH_FOLDER" 2>/dev/null && pwd -P)" || return 0
         [[ "$source_directory" == "$normalized_watch_folder" ]] || return 0
     fi
-
-    [[ -z "$FILE_PREFIX" || "$base_name" == "$FILE_PREFIX"* ]] || return 0
 
     if [[ -n "$OUTPUT_SUFFIX" && "$base_name" == *"${OUTPUT_SUFFIX}.mp4" ]]; then
         return 0

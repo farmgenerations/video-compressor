@@ -17,14 +17,6 @@ else
     SELECTED_WATCH_FOLDER=""
 fi
 
-if [[ "${FILE_PREFIX+set}" == "set" ]]; then
-    SELECTED_FILE_PREFIX="$FILE_PREFIX"
-    PREFIX_WAS_SUPPLIED=1
-else
-    SELECTED_FILE_PREFIX=""
-    PREFIX_WAS_SUPPLIED=0
-fi
-
 pause() {
     if [[ -t 0 ]]; then
         printf '\nPress Return to close this window.'
@@ -71,20 +63,14 @@ fi
 SELECTED_WATCH_FOLDER="${SELECTED_WATCH_FOLDER%/}"
 [[ -d "$SELECTED_WATCH_FOLDER" ]] || fail "Watch folder does not exist: $SELECTED_WATCH_FOLDER"
 
-if [[ "$PREFIX_WAS_SUPPLIED" == "0" && -t 0 ]]; then
-    printf 'Filename prefix (leave blank for any CleanShot filename): '
-    read -r SELECTED_FILE_PREFIX
-fi
-
 mkdir -p "$APP_DIR" "$ACTION_DIR"
 cp "$SCRIPT_DIR/compress-new-videos.sh" "$COMPRESSOR"
 chmod 755 "$COMPRESSOR"
 /usr/bin/osacompile -o "$ACTION_SCRIPT" "$SCRIPT_DIR/Compress CleanShot Videos.applescript"
 
 {
-    printf '# Managed by install.command. Rerun the installer to change these values.\n'
+    printf '# Managed by install.command. Rerun the installer to change this value.\n'
     printf 'WATCH_FOLDER=%q\n' "$SELECTED_WATCH_FOLDER"
-    printf 'FILE_PREFIX=%q\n' "$SELECTED_FILE_PREFIX"
 } > "$SETTINGS_FILE"
 
 if [[ ! -f "$APP_DIR/config.sh" ]]; then
@@ -96,12 +82,7 @@ if [[ "$TARGET_HOME" == "$HOME" ]]; then
 fi
 
 printf '\nInstalled CleanShot Compressor.\n\n'
-printf 'Watch folder: %s\n' "$SELECTED_WATCH_FOLDER"
-if [[ -n "$SELECTED_FILE_PREFIX" ]]; then
-    printf 'Filename prefix: %s\n\n' "$SELECTED_FILE_PREFIX"
-else
-    printf 'Filename prefix: any CleanShot filename\n\n'
-fi
+printf 'Watch folder: %s\n\n' "$SELECTED_WATCH_FOLDER"
 printf 'Finish setup in Folder Actions Setup:\n'
 printf '  1. Confirm Enable Folder Actions is on.\n'
 printf '  2. Click + under the left list and choose:\n'
