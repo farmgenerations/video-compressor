@@ -8,7 +8,8 @@ ffmpeg; nothing is uploaded.
 
 ## Features
 
-- Detects CleanShot recordings from their embedded application metadata.
+- Detects CleanShot recordings from their embedded application metadata, or
+  the extended attribute CleanShot X 5 and later add to recordings.
 - Watches any folder selected during installation.
 - Ignores videos created by Loom and other applications.
 - Keeps the original recording unchanged.

@@ -61,6 +61,12 @@ is_cleanshot_video() {
     local source_file="$1"
     local software_tag
 
+    # CleanShot X 5+ no longer writes the QuickTime software tag, but marks
+    # its recordings with this extended attribute.
+    if /usr/bin/xattr -p com.maketheweb.cleanshot.retinafactor "$source_file" >/dev/null 2>&1; then
+        return 0
+    fi
+
     software_tag="$($FFPROBE -v error \
         -show_entries 'format_tags=com.apple.quicktime.software' \
         -of default=noprint_wrappers=1:nokey=1 \
